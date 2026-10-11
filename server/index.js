@@ -5,6 +5,18 @@ import crypto from "crypto";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// Read a local .env file without adding a dotenv dependency. Existing shell
+// variables win, so production host settings continue to take precedence.
+const ENV_FILE = path.join(__dirname, "..", ".env");
+if (fs.existsSync(ENV_FILE)) {
+  for (const line of fs.readFileSync(ENV_FILE, "utf8").split(/\r?\n/)) {
+    const match = line.match(/^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/);
+    if (!match || Object.prototype.hasOwnProperty.call(process.env, match[1])) continue;
+    let value = match[2];
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) value = value.slice(1, -1);
+    process.env[match[1]] = value;
+  }
+}
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const BACKUP_DIR = path.join(DATA_DIR, "backups");
 const DIST = path.join(__dirname, "..", "dist");
