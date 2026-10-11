@@ -14,6 +14,8 @@ Your content, PDFs, images and password live in `server/data/`.
 
 ## Run it on your computer
 ```bash
+cp .env.example .env   # Windows PowerShell: Copy-Item .env.example .env
+# Edit .env and set ADMIN_PASSWORD before the first start
 npm install
 npm run dev
 ```
@@ -21,8 +23,8 @@ Open http://localhost:5173
 
 ## Admin
 - Open http://localhost:5173/#admin, or click **Admin** in the footer.
-- Password is `admin123` until you change it (Admin → Password). A yellow reminder shows while it is still the default.
-- Forgot it? Stop the server, delete `server/data/admin.json`, start again. It resets to `admin123` (or `ADMIN_PASSWORD`).
+- The first-start password is `ADMIN_PASSWORD` from your local `.env` file. Keep `.env` private; Git ignores it. If unset, the initial password is `admin123`.
+- Forgot it? Stop the server, delete `server/data/admin.json`, and start again. It resets to `ADMIN_PASSWORD` (or `admin123` if unset).
 
 ## Using the admin from your phone
 - **Same Wi-Fi:** `npm run dev` also prints a Network address like `http://192.168.x.x:5173`. Open `http://192.168.x.x:5173/#admin` on your phone. If it does not load, allow Node.js through Windows Firewall for private networks.
