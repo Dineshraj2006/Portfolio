@@ -988,10 +988,33 @@ function Login({ onLogin, back }) {
   );
 }
 
+function DRIntro({ onDone }) {
+  useEffect(() => {
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const timer = window.setTimeout(onDone, reduced ? 100 : 3400);
+    return () => window.clearTimeout(timer);
+  }, [onDone]);
+  return (
+    <div className="dr-intro" role="dialog" aria-label="Dineshraj portfolio intro">
+      <div className="dr-intro-glow" aria-hidden="true" />
+      <div className="dr-intro-art-wrap" aria-hidden="true">
+        <img className="dr-intro-art" src="/dr-logo-reveal.png" alt="" />
+      </div>
+      <div className="dr-intro-scan" aria-hidden="true" />
+      <div className="dr-intro-caption"><span>DR</span><i />PORTFOLIO</div>
+      <button className="dr-intro-skip" onClick={onDone}>Skip intro <span aria-hidden="true">↗</span></button>
+    </div>
+  );
+}
+
 /* ───────────── app shell ───────────── */
 export default function Portfolio() {
   const [data, setData] = useState(null);
   const [view, setView] = useState("public");
+  const [showIntro, setShowIntro] = useState(() => {
+    if (typeof window === "undefined" || window.location.hash === "#admin") return false;
+    try { return sessionStorage.getItem("dr-portfolio-intro-seen") !== "1"; } catch { return true; }
+  });
   const [dark, setDarkState] = useState(false);
   const [usingDefault, setUsingDefault] = useState(false);
   const [saveState, setSaveStateRaw] = useState("saved");
@@ -1013,6 +1036,10 @@ export default function Portfolio() {
     dataRef.current = next; setData(next); persist();
   }, []);
   const setDark = (v) => { setDarkState(v); try { localStorage.setItem("theme", v ? "dark" : "light"); } catch {} };
+  const dismissIntro = useCallback(() => {
+    try { sessionStorage.setItem("dr-portfolio-intro-seen", "1"); } catch {}
+    setShowIntro(false);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -1078,6 +1105,7 @@ export default function Portfolio() {
     <div className={`pf ${dark ? "dark" : ""}`}>
       <style>{css}</style>
       {view === "public" && <PublicPage data={data} dark={dark} setDark={setDark} openAdmin={() => setView("login")} />}
+      {view === "public" && showIntro && <DRIntro onDone={dismissIntro} />}
       {view === "login" && <Login onLogin={tryLogin} back={() => { leaveAdminHash(); setView("public"); }} />}
       {view === "admin" && <AdminPage data={data} update={update} exit={() => { leaveAdminHash(); setView("public"); }} changePassword={changePassword} logout={doLogout} save={saveState} retry={persist} relogin={() => setView("login")} usingDefault={usingDefault} />}
     </div>
@@ -1460,5 +1488,23 @@ main{max-width:1080px;margin:0 auto;padding:0 24px}
   .avatar{width:72px;height:72px;margin-bottom:12px}
   .nav{position:relative}
 }
+
+/* One-time DR chrome mark reveal. The intro is skipped for reduced-motion users. */
+.dr-intro{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;overflow:hidden;background:#030406;color:#e9edf4;isolation:isolate;animation:drIntroExit .7s cubic-bezier(.7,0,.84,0) 2.7s forwards}
+.dr-intro-glow{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 50% 45%,rgba(144,159,178,.15),transparent 48%),linear-gradient(180deg,#080a0d,#020304 76%)}
+.dr-intro-art-wrap{position:relative;width:min(100vw,1500px);max-height:80vh;display:grid;place-items:center;animation:drLogoArrive 1.5s cubic-bezier(.16,1,.3,1) both}
+.dr-intro-art{display:block;width:100%;height:auto;max-height:80vh;object-fit:contain;filter:contrast(1.06) brightness(.94);animation:drChromeGleam 2.6s ease-in-out .25s both}
+.dr-intro-scan{position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(241,247,255,.9),transparent);box-shadow:0 0 22px 4px rgba(220,232,255,.3);opacity:0;animation:drScan 1.35s ease-out .65s both;pointer-events:none}
+.dr-intro-caption{position:absolute;bottom:max(7vh,30px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:11px;color:#aeb8c6;font:600 .7rem/1 system-ui,sans-serif;letter-spacing:.28em;white-space:nowrap;opacity:0;animation:drCaption .7s ease-out 1.45s forwards}
+.dr-intro-caption span{color:#f2f4f8;font-weight:800;letter-spacing:.18em}.dr-intro-caption i{display:block;width:28px;height:1px;background:#738195}
+.dr-intro-skip{position:absolute;right:max(24px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));min-height:44px;padding:0 14px;border:1px solid rgba(221,230,242,.32);border-radius:999px;background:rgba(14,17,22,.78);color:#e9edf4;font:600 .84rem system-ui,sans-serif;cursor:pointer;transition:background .18s,border-color .18s}
+.dr-intro-skip:hover{background:#1b2028;border-color:rgba(221,230,242,.7)}.dr-intro-skip span{padding-left:5px;color:#aeb8c6}
+@keyframes drLogoArrive{from{opacity:0;transform:scale(.91);filter:blur(12px)}to{opacity:1;transform:scale(1);filter:blur(0)}}
+@keyframes drChromeGleam{0%{filter:contrast(1.12) brightness(.7)}28%{filter:contrast(1.08) brightness(1.18)}55%,100%{filter:contrast(1.06) brightness(.94)}}
+@keyframes drScan{0%{opacity:0;transform:translateY(34vh)}20%{opacity:.8}80%{opacity:.55}100%{opacity:0;transform:translateY(-34vh)}}
+@keyframes drCaption{to{opacity:1;transform:translate(-50%,-3px)}}
+@keyframes drIntroExit{to{opacity:0;visibility:hidden;pointer-events:none}}
+@media(max-width:600px){.dr-intro-art-wrap{width:100vw}.dr-intro-art{max-height:none}.dr-intro-caption{bottom:max(12vh,72px);font-size:.62rem}.dr-intro-skip{right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom))}}
+@media(prefers-reduced-motion:reduce){.dr-intro,.dr-intro-art-wrap,.dr-intro-art,.dr-intro-scan,.dr-intro-caption{animation:none!important}.dr-intro{opacity:0;visibility:hidden;pointer-events:none}}
 
 `;
