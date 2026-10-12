@@ -1038,7 +1038,7 @@ export default function Portfolio() {
   const [view, setView] = useState("public");
   const [showIntro, setShowIntro] = useState(() => {
     if (typeof window === "undefined" || window.location.hash === "#admin") return false;
-    try { return sessionStorage.getItem("dr-portfolio-intro-seen") !== "1"; } catch { return true; }
+    try { return sessionStorage.getItem("dr-logo-draw-intro-v2-seen") !== "1"; } catch { return true; }
   });
   const [dark, setDarkState] = useState(false);
   const [usingDefault, setUsingDefault] = useState(false);
@@ -1062,7 +1062,7 @@ export default function Portfolio() {
   }, []);
   const setDark = (v) => { setDarkState(v); try { localStorage.setItem("theme", v ? "dark" : "light"); } catch {} };
   const dismissIntro = useCallback(() => {
-    try { sessionStorage.setItem("dr-portfolio-intro-seen", "1"); } catch {}
+    try { sessionStorage.setItem("dr-logo-draw-intro-v2-seen", "1"); } catch {}
     setShowIntro(false);
   }, []);
 
