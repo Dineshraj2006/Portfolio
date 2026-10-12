@@ -991,16 +991,41 @@ function Login({ onLogin, back }) {
 function DRIntro({ onDone }) {
   useEffect(() => {
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    const timer = window.setTimeout(onDone, reduced ? 100 : 3400);
+    const timer = window.setTimeout(onDone, reduced ? 100 : 4400);
     return () => window.clearTimeout(timer);
   }, [onDone]);
   return (
     <div className="dr-intro" role="dialog" aria-label="Dineshraj portfolio intro">
       <div className="dr-intro-glow" aria-hidden="true" />
       <div className="dr-intro-art-wrap" aria-hidden="true">
-        <img className="dr-intro-art" src="/dr-logo-reveal.png" alt="" />
+        <svg className="dr-intro-mark" viewBox="0 0 1672 943" role="img" aria-label="DR monogram">
+          <defs>
+            <clipPath id="dr-mark-shape" clipPathUnits="userSpaceOnUse">
+              <path fillRule="evenodd" d="M301 228 784 298Q802 301 813 315L839 347Q845 355 842 369L799 578Q796 594 780 598L276 676 375 603 456 310 394 294Z M474 321 779 360 741 542 455 590Z" />
+              <path d="M830 252 1338 250 1380 294 1358 386 1077 403 1307 602 1308 711 1021 452 1078 404 941 417 864 675 944 676 984 304 903 302Z" />
+            </clipPath>
+            <linearGradient id="dr-trace-metal" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0" stopColor="#68707c" />
+              <stop offset=".42" stopColor="#f4f7fb" />
+              <stop offset=".7" stopColor="#aeb8c4" />
+              <stop offset="1" stopColor="#fff" />
+            </linearGradient>
+            <linearGradient id="dr-polish-sweep" x1="0" y1=".5" x2="1" y2=".5" gradientUnits="objectBoundingBox">
+              <stop offset="0" stopColor="#fff" stopOpacity="0" />
+              <stop offset=".46" stopColor="#dbe7f7" stopOpacity="0" />
+              <stop offset=".51" stopColor="#fff" stopOpacity=".95" />
+              <stop offset=".56" stopColor="#dbe7f7" stopOpacity="0" />
+              <stop offset="1" stopColor="#fff" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <image className="dr-mark-chrome" href="/dr-logo-reveal.png" x="0" y="0" width="1672" height="943" preserveAspectRatio="none" clipPath="url(#dr-mark-shape)" />
+          <g className="dr-mark-traces" fill="none" stroke="url(#dr-trace-metal)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
+            <path className="dr-trace-d" d="M301 228 784 298 839 347 799 578 276 676 375 603 456 310 394 294Z M474 321 779 360 741 542 455 590Z" />
+            <path className="dr-trace-r" d="M830 252 1338 250 1380 294 1358 386 1077 403 1307 602 1308 711 1021 452 1078 404 941 417 864 675 944 676 984 304 903 302Z" />
+          </g>
+          <rect className="dr-mark-polish" x="0" y="0" width="1672" height="943" fill="url(#dr-polish-sweep)" clipPath="url(#dr-mark-shape)" />
+        </svg>
       </div>
-      <div className="dr-intro-scan" aria-hidden="true" />
       <div className="dr-intro-caption"><span>DR</span><i />PORTFOLIO</div>
       <button className="dr-intro-skip" onClick={onDone}>Skip intro <span aria-hidden="true">↗</span></button>
     </div>
@@ -1489,22 +1514,27 @@ main{max-width:1080px;margin:0 auto;padding:0 24px}
   .nav{position:relative}
 }
 
-/* One-time DR chrome mark reveal. The intro is skipped for reduced-motion users. */
-.dr-intro{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;overflow:hidden;background:#030406;color:#e9edf4;isolation:isolate;animation:drIntroExit .7s cubic-bezier(.7,0,.84,0) 2.7s forwards}
-.dr-intro-glow{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 50% 45%,rgba(144,159,178,.15),transparent 48%),linear-gradient(180deg,#080a0d,#020304 76%)}
-.dr-intro-art-wrap{position:relative;width:min(100vw,1500px);max-height:80vh;display:grid;place-items:center;animation:drLogoArrive 1.5s cubic-bezier(.16,1,.3,1) both}
-.dr-intro-art{display:block;width:100%;height:auto;max-height:80vh;object-fit:contain;filter:contrast(1.06) brightness(.94);animation:drChromeGleam 2.6s ease-in-out .25s both}
-.dr-intro-scan{position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(241,247,255,.9),transparent);box-shadow:0 0 22px 4px rgba(220,232,255,.3);opacity:0;animation:drScan 1.35s ease-out .65s both;pointer-events:none}
-.dr-intro-caption{position:absolute;bottom:max(7vh,30px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:11px;color:#aeb8c6;font:600 .7rem/1 system-ui,sans-serif;letter-spacing:.28em;white-space:nowrap;opacity:0;animation:drCaption .7s ease-out 1.45s forwards}
+/* One-time DR reveal: outline trace, chrome polish, then a zoom through the mark. */
+.dr-intro{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;overflow:hidden;background:#030406;color:#e9edf4;isolation:isolate;animation:drIntroExit .6s cubic-bezier(.7,0,.84,0) 3.8s forwards}
+.dr-intro-glow{position:absolute;inset:0;z-index:0;background:radial-gradient(ellipse at 50% 45%,rgba(144,159,178,.18),transparent 48%),linear-gradient(180deg,#080a0d,#020304 76%);pointer-events:none}
+.dr-intro-art-wrap{position:relative;z-index:1;width:min(100vw,1500px);max-height:80vh;display:grid;place-items:center;animation:drMarkZoom 1.2s cubic-bezier(.65,0,.9,.35) 2.85s both}
+.dr-intro-mark{display:block;width:100%;height:auto;max-height:80vh;overflow:visible}
+.dr-mark-chrome{opacity:0;animation:drSilverResolve .75s cubic-bezier(.2,.75,.25,1) 1.52s forwards}
+.dr-mark-traces path{stroke-dasharray:6000;stroke-dashoffset:6000;filter:drop-shadow(0 0 6px rgba(220,232,255,.8));animation:drTraceDraw 1.42s cubic-bezier(.55,0,.25,1) forwards}
+.dr-mark-traces .dr-trace-d{animation-delay:.12s}.dr-mark-traces .dr-trace-r{animation-delay:.36s}
+.dr-mark-polish{opacity:0;transform:translateX(-95%);animation:drPolishSweep 1.05s cubic-bezier(.2,.7,.15,1) 1.88s both}
+.dr-intro-caption{position:absolute;z-index:2;bottom:max(7vh,30px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:11px;color:#aeb8c6;font:600 .7rem/1 system-ui,sans-serif;letter-spacing:.28em;white-space:nowrap;opacity:0;animation:drCaption .7s ease-out 1.75s forwards,drCaptionOut .35s ease-in 2.9s forwards}
 .dr-intro-caption span{color:#f2f4f8;font-weight:800;letter-spacing:.18em}.dr-intro-caption i{display:block;width:28px;height:1px;background:#738195}
-.dr-intro-skip{position:absolute;right:max(24px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));min-height:44px;padding:0 14px;border:1px solid rgba(221,230,242,.32);border-radius:999px;background:rgba(14,17,22,.78);color:#e9edf4;font:600 .84rem system-ui,sans-serif;cursor:pointer;transition:background .18s,border-color .18s}
+.dr-intro-skip{position:absolute;z-index:3;right:max(24px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));min-height:44px;padding:0 14px;border:1px solid rgba(221,230,242,.32);border-radius:999px;background:rgba(14,17,22,.78);color:#e9edf4;font:600 .84rem system-ui,sans-serif;cursor:pointer;transition:background .18s,border-color .18s}
 .dr-intro-skip:hover{background:#1b2028;border-color:rgba(221,230,242,.7)}.dr-intro-skip span{padding-left:5px;color:#aeb8c6}
-@keyframes drLogoArrive{from{opacity:0;transform:scale(.91);filter:blur(12px)}to{opacity:1;transform:scale(1);filter:blur(0)}}
-@keyframes drChromeGleam{0%{filter:contrast(1.12) brightness(.7)}28%{filter:contrast(1.08) brightness(1.18)}55%,100%{filter:contrast(1.06) brightness(.94)}}
-@keyframes drScan{0%{opacity:0;transform:translateY(34vh)}20%{opacity:.8}80%{opacity:.55}100%{opacity:0;transform:translateY(-34vh)}}
+@keyframes drTraceDraw{to{stroke-dashoffset:0}}
+@keyframes drSilverResolve{0%{opacity:0;filter:brightness(.55) saturate(.35)}55%{opacity:1;filter:brightness(1.35) saturate(.5)}100%{opacity:1;filter:brightness(1) saturate(.25)}}
+@keyframes drPolishSweep{0%{opacity:0;transform:translateX(-95%)}12%{opacity:1}82%{opacity:.88}100%{opacity:0;transform:translateX(95%)}}
+@keyframes drMarkZoom{0%{transform:scale(1);opacity:1;filter:brightness(1)}35%{opacity:1;filter:brightness(1.4)}100%{transform:scale(4.8);opacity:0;filter:brightness(1.8)}}
 @keyframes drCaption{to{opacity:1;transform:translate(-50%,-3px)}}
+@keyframes drCaptionOut{to{opacity:0;transform:translate(-50%,-10px)}}
 @keyframes drIntroExit{to{opacity:0;visibility:hidden;pointer-events:none}}
-@media(max-width:600px){.dr-intro-art-wrap{width:100vw}.dr-intro-art{max-height:none}.dr-intro-caption{bottom:max(12vh,72px);font-size:.62rem}.dr-intro-skip{right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom))}}
-@media(prefers-reduced-motion:reduce){.dr-intro,.dr-intro-art-wrap,.dr-intro-art,.dr-intro-scan,.dr-intro-caption{animation:none!important}.dr-intro{opacity:0;visibility:hidden;pointer-events:none}}
+@media(max-width:600px){.dr-intro-art-wrap{width:min(100vw,1500px)}.dr-intro-caption{bottom:max(12vh,72px);font-size:.62rem}.dr-intro-skip{right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom))}}
+@media(prefers-reduced-motion:reduce){.dr-intro,.dr-intro-art-wrap,.dr-mark-chrome,.dr-mark-traces path,.dr-mark-polish,.dr-intro-caption{animation:none!important}.dr-intro{opacity:0;visibility:hidden;pointer-events:none}}
 
 `;
