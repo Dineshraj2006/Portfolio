@@ -46,7 +46,8 @@ function saturn(w, h) {
   const R = mobile ? Math.min(66, w * 0.17) : Math.max(60, Math.min(h * 0.22, w * 0.14));
   const nRing = mobile ? 950 : 2000;
   const bands = [[1.42, 1.72, 0.55], [1.86, 2.3, 0.45]]; // the gap between them is the Cassini division
-  const palette = ["#F4F2FF", "#A78BFA", "#FF896C", "#9B96FF"];
+  // A restrained graphite ring so it sits naturally against the space background.
+  const palette = ["#E2E5E8", "#9BA1A7", "#626970", "#353B42"];
   const shares = [0.4, 0.2, 0.2, 0.2];
 
   const ring = []; // grouped by colour so fillStyle changes only 4 times per pass
@@ -61,7 +62,7 @@ function saturn(w, h) {
   for (let i = 0; i < N; i++) {
     const y = 1 - (i / (N - 1)) * 2, rad = Math.sqrt(1 - y * y), th = i * 2.399963;
     const k = 0.5 + 0.5 * Math.sin(y * 6.5 + 1.2), stripe = Math.sin(y * 13) > 0.86;
-    planet.push({ x: Math.cos(th) * rad, y, z: Math.sin(th) * rad, col: stripe ? [167, 139, 250] : [108 + 147 * k, 139 + 4 * k, 255 - 78 * k] });
+    planet.push({ x: Math.cos(th) * rad, y, z: Math.sin(th) * rad, col: stripe ? [167, 139, 250] : [108 + 147 * k, 139 + 4 * k, 255 - 78 * k], ox: 0, oy: 0 });
   }
   const stars = makeStars(w, h, mobile ? 50 : 110);
   const sx = new Float32Array(ring.length), sy = new Float32Array(ring.length);
@@ -119,11 +120,14 @@ function saturn(w, h) {
       for (const q of planet) {
         const x1 = q.x * cs + q.z * ss, z0 = -q.x * ss + q.z * cs, y0 = q.y;
         const y1 = y0 * ct + z0 * st, z1 = -y0 * st + z0 * ct;
-        if (z1 <= 0) continue;
         const x2 = x1 * cr - y1 * sr, y2 = x1 * sr + y1 * cr;
+        // Planet particles use the same spring interaction as the rings: they
+        // scatter under the pointer, then settle into the spinning globe.
+        repel(q, cx + x2 * R, cy + y2 * R, m, mobile ? 70 : 112, mobile ? 26 : 42, dt);
+        if (z1 <= 0) continue;
         const shade = Math.max(0, x2 * L[0] + y2 * L[1] + z1 * L[2]);
         ctx.fillStyle = `rgba(${q.col[0] | 0},${q.col[1] | 0},${q.col[2] | 0},${(0.12 + 0.85 * shade).toFixed(2)})`;
-        ctx.fillRect(cx + x2 * R - 1, cy + y2 * R - 1, 2.2, 2.2);
+        ctx.fillRect(cx + x2 * R + q.ox - 1, cy + y2 * R + q.oy - 1, 2.2, 2.2);
       }
 
       pass(true); // ring half in front of the planet
@@ -257,4 +261,3 @@ function warp(w, h) {
 }
 
 export const SCENES = { saturn, net, galaxy, warp };
-
